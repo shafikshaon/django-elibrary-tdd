@@ -1,13 +1,56 @@
 from django.test import TestCase, SimpleTestCase
 from django.urls.base import resolve
-
-from .forms import AddBookForm
 from .models import Catalogue
 from django.urls import reverse
 from .views import home
+from .forms import AddBookForm
 
 
-class CatalogueFormTests(SimpleTestCase):
+class CatalogueViewTests(TestCase):
+    def test_book_list_view(self):
+
+        """
+        A test method to show that the books we created are shown correctly in our template.
+        """
+
+        Book_1 = Catalogue.objects.create(
+            title="Django for Beginners (2018)",
+            ISBN="978-1-60309-0",
+            author="John Doe",
+            price=9.99,
+            availability="true",
+        )
+
+        Book_2 = Catalogue.objects.create(
+            title="Django for Professionals (2020)",
+            ISBN="978-1-60309-3",
+            author="Mary Doe",
+            price=11.99,
+            availability="false",
+        )
+
+        response = self.client.get(reverse("home"))
+
+        self.assertIn("Django for Professionals (2020)", response.content.decode())
+        self.assertIn("Mary Doe", response.content.decode())
+        self.assertIn("978-1-60309-3", response.content.decode())
+
+
+class CatalogueTemplateTests(TestCase):
+    def test_homepage_template(self):
+        response = self.client.get(reverse("home"))
+        self.assertTemplateUsed(response, "home.html")
+
+    def test_homepage_contains_correct_html(self):
+        response = self.client.get(reverse("home"))
+        self.assertContains(response, "E-library Application")
+
+    def test_hompage_does_not_contain_incorrect_html(self):
+        response = self.client.get(reverse("home"))
+        self.assertNotContains(response, "Hello World")
+
+
+class CatalogueFormTests(TestCase):
     def setUp(self):
         url = reverse("home")
         self.response = self.client.get(url)
@@ -34,9 +77,7 @@ class CatalogueFormTests(SimpleTestCase):
         self.assertFalse(add_book_form.is_valid())
 
 
-class ElibraryURLsTest(SimpleTestCase):
-    "Test the catalogue URLs"
-
+class ElibraryURLsTest(TestCase):
     def test_homepage_url_name(self):
         response = self.client.get(reverse("home"))
         self.assertEqual(response.status_code, 200)
@@ -47,9 +88,6 @@ class ElibraryURLsTest(SimpleTestCase):
 
 
 class CatalogueModelTests(TestCase):
-
-    "Test the catalogue model"
-
     def setUp(self):
         self.book = Catalogue(
             title="First Title",
@@ -59,7 +97,7 @@ class CatalogueModelTests(TestCase):
             availability="True",
         )
 
-    def test_create_catalogue(self):
+    def test_create_book(self):
         self.assertIsInstance(self.book, Catalogue)
 
     def test_str_representation(self):
