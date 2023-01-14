@@ -1,0 +1,10 @@
+asgiref
+black==22.12.0
+certifi
+click==8.1.3
+Django
+mypy-extensions==0.4.3
+pathspec==0.10.3
+platformdirs==2.6.2
+sqlparse
+tomli==2.0.1
